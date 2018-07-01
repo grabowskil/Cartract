@@ -55,8 +55,6 @@ contract CarPermit is CarAccessControl {
         }
     }
 
-    /* INTERNAL INTERFACES */
-
     // @notice private funtion to add new permit
     // @dev never make public as no access control happens
     function addPermit(
@@ -77,16 +75,6 @@ contract CarPermit is CarAccessControl {
     }
 
     /* HELPER FUNCTIONS */
-    // @dev private function checks if permit is already valid
-    function isValid(uint64 _validFrom) private view returns(bool) {
-        return (_validFrom <= uint64(now));
-    }
-
-    // @dev private function checks if permit is still valid
-    function isStillValid(uint64 _validTill) private view returns(bool) {
-        return (_validTill > uint64(now));
-    }
-
     // @notice checks validity of a parsed permit
     // @dev private functions, accepts output from getPermit as input
     function isValidPermit(
@@ -107,6 +95,30 @@ contract CarPermit is CarAccessControl {
             );
     }
 
+    /* INTERNAL INTERFACES */
+    // @notice interface to update "_restrictions"
+    function updatePermits(uint8 _requiredPermitType) internal {
+        for (uint256 i = 0; i < _permits.length - 1; ++i) {
+            (uint256 a, uint64 b, uint64 c, uint8 d) = getPermit(i);
+            if (isValidPermit(a, b, c, d, _requiredPermitType)) {
+                _restrictions[_requiredPermitType] = i;
+            }
+        }
+    }
+
+    // @notice interface to check if a valid permit for parsed type exists
+    // @dev tries to get the standard permit from "_restrictions" first before
+    //  iterating through "_permits". If the standard permit is invalid but
+    //  another valid permit can be found, the standard permit is updated.
+    function isPermitted(uint8 _requiredPermitType) internal returns(bool) {
+        (uint256 a, uint64 b, uint64 c, uint8 d) = getPermit(_restrictions[_requiredPermitType]);
+        if (isValidPermit(a, b, c, d, _requiredPermitType)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /* EXTERNAL INTERFACES */
     // @notice interface to add new permit
     // @dev only authorities level 2 and lower can interact
@@ -120,27 +132,5 @@ contract CarPermit is CarAccessControl {
     {
         uint256 newPermitId = addPermit(_validTill, _permitType);
         return newPermitId;
-    }
-
-    function updatePermits() internal {
-        for (uint256 i = 0; i < _permits.length - 1; ++i) {
-            (uint256 a, uint64 b, uint64 c, uint8 d) = getPermit(i);
-            if (check == false && isValidPermit(a, b, c, d)) {
-                _restrictions[_permitType] = i;
-            }
-        }
-    }
-
-    // @notice interface to check if a valid permit for parsed type exists
-    // @dev tries to get the standard permit from "_restrictions" first before
-    //  iterating through "_permits". If the standard permit is invalid but
-    //  another valid permit can be found, the standard permit is updated.
-    function isPermitted(uint8 _permitType) internal returns(bool) {
-        (uint256 a, uint64 b, uint64 c, uint8 d) = getPermit(_restrictions[_permitType]);
-        if (isValidPermit(a, b, c, d)) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
