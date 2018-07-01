@@ -92,15 +92,18 @@ contract CarPermit is CarAccessControl {
     function isValidPermit(
         uint256 _issuingAuthorityId,
         uint64 _validFrom,
-        uint64 _validTill
+        uint64 _validTill,
+        uint8 _permitType,
+        uint8 _requiredPermitType
     )
         private
         view
         returns(bool) {
             return (
                 isStillAuthority(_issuingAuthorityId)
-                && isStillValid(_validTill)
-                && isValid(_validFrom)
+                && (_validTill > uint64(now))
+                && (_validFrom <= uint64(now))
+                && (_permitType == _requiredPermitType)
             );
     }
 
