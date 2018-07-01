@@ -46,10 +46,11 @@ contract CarAccessControl {
         returns(address, bytes32, uint8)
     {
         if (_authorityId < _authorities.length && _authorityId >= 0) {
-            address authority = _authorities[_authorityId].authority;
-            bytes32 name = _authorities[_authorityId].name;
-            uint8 level = _authorities[_authorityId].level;
-            return (authority, name, level);
+            return (
+                _authorities[_authorityId].authority, 
+                _authorities[_authorityId].name,
+                _authorities[_authorityId].level
+            );
         } else {
             // @notice instead of failing if requested ID is out-of-bounds
             //  returns address 0, description "out of bounds" and lowest
