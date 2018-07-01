@@ -1,7 +1,7 @@
 pragma solidity ^0.4.22;
 
 /// @title facet of CarCore to control access to a car's functions
-/// @author Lennart grabowski
+/// @author Lennart Grabowski
 
 
 contract CarAccessControl {
@@ -26,12 +26,13 @@ contract CarAccessControl {
     // @dev An array containing all identified authorities.
     Authority[] private _authorities;
 
-    // @dev for cheap checks if an address is part of authorities this Mapping
-    //  needs to be maintained additionally to "_authorities".
+    // @dev for cheap checks if an address is part of authorities these Mappings
+    //  need to be maintained additionally to "_authorities".
     mapping (address => bool) private _inAuthorities;
     mapping (address => uint256) private _indexInAuthorities;
 
-    // @notice returns the authority's address and name associated with the id
+    // @notice returns the authority's address, name and level associated with
+    //  parsed id
     function getAuthority(
         uint256 _authorityId
     )
@@ -45,6 +46,11 @@ contract CarAccessControl {
             uint8 level = _authorities[_authorityId].level;
             return (authority, name, level);
         } else {
+            // @notice instead of failing if requested ID is out-of-bounds
+            //  returns address 0, description "out of bounds" and lowest
+            //  possible authority-level.
+            // @dev might be security issue, as address 0 is treated as existing
+            //  authority
             return (0x0000000000000000000000000000000000000000, bytes32('out of bounds'), uint8(255));
         }
     }
