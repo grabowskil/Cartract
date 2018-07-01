@@ -4,6 +4,9 @@ import { CarAccessControl } from "./carAccessControl.sol";
 
 contract CarPermit is CarAccessControl {
 
+    event PermitAdded(uint256 permitId, uint64 validTill, uint8 permitType);
+    // event PermitStatus(bool isStillAuthority, bool isValid, bool isStillValid, bool permitType);
+
     // @dev the main permit struct. Every permit needs to have an issuing
     //  authority represented by the ID of the authority in the "_authorities"
     //  array. Additionally a validity period must be given as start and end
@@ -23,12 +26,6 @@ contract CarPermit is CarAccessControl {
     // @dev for cheap checks of the standard permit the corresponding
     //  restrictions are mapped.
     mapping (uint8 => uint256) private _restrictions;
-
-    // @dev standard restrictions are constructed.
-    constructor() public {
-        _restrictions[0] = uint256(0);  // empty inspection token added
-        _restrictions[1] = uint256(0);  // empty insurance token added
-    }
 
     // @notice returns permit's authority, validity period and type associated
     //  with parsed id
@@ -71,7 +68,18 @@ contract CarPermit is CarAccessControl {
             permitType: _permitType
         });
         uint256 newPermitId = _permits.push(_permit) - 1;
+        _restrictions[_permitType] = newPermitId;
+
+        emit PermitAdded(newPermitId, _validTill, _permitType);
+
         return newPermitId;
+    }
+
+    // @dev standard restrictions are constructed.
+    constructor() public {
+        addPermit(uint64(0), uint8(255));   // dummy permit added
+        _restrictions[0] = uint256(-1);     // dummy inspection token added
+        _restrictions[1] = uint256(-1);     // dummy insurance token added
     }
 
     /* HELPER FUNCTIONS */
@@ -86,19 +94,29 @@ contract CarPermit is CarAccessControl {
     )
         private
         view
-        returns(bool) {
-            return (
-                isStillAuthority(_issuingAuthorityId)
-                && (_validTill > uint64(now))
-                && (_validFrom <= uint64(now))
-                && (_permitType == _requiredPermitType)
-            );
+        returns(bool)
+    {
+        // @dev Helpful for debugging, but expensive to use, so don't.
+        /*
+        emit PermitStatus(
+            isStillAuthority(_issuingAuthorityId),
+            bool (_validTill > uint64(now)),
+            bool (_validFrom <= uint64(now)),
+            bool (_permitType == _requiredPermitType)
+        );*/
+
+        return (
+            isStillAuthority(_issuingAuthorityId)
+            && (_validTill > uint64(now))
+            && (_validFrom <= uint64(now))
+            && (_permitType == _requiredPermitType)
+        );
     }
 
     /* INTERNAL INTERFACES */
     // @notice interface to update "_restrictions"
     function updatePermits(uint8 _requiredPermitType) internal {
-        for (uint256 i = 0; i < _permits.length - 1; ++i) {
+        for (uint256 i = 0; i < _permits.length; ++i) {
             (uint256 a, uint64 b, uint64 c, uint8 d) = getPermit(i);
             if (isValidPermit(a, b, c, d, _requiredPermitType)) {
                 _restrictions[_requiredPermitType] = i;
@@ -131,6 +149,7 @@ contract CarPermit is CarAccessControl {
         returns(uint256)
     {
         uint256 newPermitId = addPermit(_validTill, _permitType);
+        updatePermits(_permitType);
         return newPermitId;
     }
 }

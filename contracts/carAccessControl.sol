@@ -5,6 +5,11 @@ pragma solidity ^0.4.22;
 
 
 contract CarAccessControl {
+
+    event OwnerChanged(address owner);
+    event AuthorityAdded(uint256 authorityId, address authority, bytes32 name, uint8 level);
+    event AuthorityRemoved(uint256 authorityId);
+
     // @notice the car's owner
     address owner;
 
@@ -40,7 +45,7 @@ contract CarAccessControl {
         public
         returns(address, bytes32, uint8)
     {
-        if (_authorityId <= _authorities.length - 1 && _authorityId >= 0) {
+        if (_authorityId < _authorities.length && _authorityId >= 0) {
             address authority = _authorities[_authorityId].authority;
             bytes32 name = _authorities[_authorityId].name;
             uint8 level = _authorities[_authorityId].level;
@@ -67,7 +72,6 @@ contract CarAccessControl {
     }
 
     /* INTERNAL INTERFACE */
-
     // @notice private function to add new authority
     // @dev never make public as no access control happens
     function addAuthority(
@@ -83,6 +87,9 @@ contract CarAccessControl {
         uint256 newAuthorityId = _authorities.push(_authority) - 1;
         _inAuthorities[_newAuthority] = true;
         _indexInAuthorities[_newAuthority] = newAuthorityId;
+
+        emit AuthorityAdded(newAuthorityId, _newAuthority, _name, _level);
+
         return newAuthorityId;
     }
 
@@ -90,6 +97,8 @@ contract CarAccessControl {
     // @dev never make public as no access control happens
     function deleteAuthority(address _authority) private {
         _inAuthorities[_authority] = false;
+
+        emit AuthorityRemoved(_indexInAuthorities[_authority]);
     }
 
     // @notice private function to set a new owner
@@ -98,6 +107,8 @@ contract CarAccessControl {
         require(_newOwner != address(0));
         deleteAuthority(owner);
         owner = _newOwner;
+
+        emit OwnerChanged(owner);
     }
 
     /* ACCESS MODIFIERS */

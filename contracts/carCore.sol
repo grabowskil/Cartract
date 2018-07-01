@@ -14,4 +14,9 @@ contract CarCore is CarPermit {
     function startEngine() constant public onlyOwner returns(bool) {
         return (isPermitted(uint8(0)) && isPermitted(uint8(1)));
     }
+
+    function changedPermits() public onlyAuthorities {
+        updatePermits(0);
+        updatePermits(1);
+    }
 }
