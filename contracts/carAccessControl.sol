@@ -1,10 +1,15 @@
 pragma solidity ^0.4.22;
 
 /// @title facet of CarCore to control access to a car's functions
-/// @author Lennart grabowski
+/// @author Lennart Grabowski
 
 
 contract CarAccessControl {
+
+    event OwnerChanged(address owner);
+    event AuthorityAdded(uint256 authorityId, address authority, bytes32 name, uint8 level);
+    event AuthorityRemoved(uint256 authorityId);
+
     // @notice the car's owner
     address owner;
 
@@ -26,12 +31,13 @@ contract CarAccessControl {
     // @dev An array containing all identified authorities.
     Authority[] private _authorities;
 
-    // @dev for cheap checks if an address is part of authorities this Mapping
-    //  needs to be maintained additionally to "_authorities".
+    // @dev for cheap checks if an address is part of authorities these Mappings
+    //  need to be maintained additionally to "_authorities".
     mapping (address => bool) private _inAuthorities;
     mapping (address => uint256) private _indexInAuthorities;
 
-    // @notice returns the authority's address and name associated with the id
+    // @notice returns the authority's address, name and level associated with
+    //  parsed id
     function getAuthority(
         uint256 _authorityId
     )
@@ -39,12 +45,18 @@ contract CarAccessControl {
         public
         returns(address, bytes32, uint8)
     {
-        if (_authorityId <= _authorities.length - 1 && _authorityId >= 0) {
-            address authority = _authorities[_authorityId].authority;
-            bytes32 name = _authorities[_authorityId].name;
-            uint8 level = _authorities[_authorityId].level;
-            return (authority, name, level);
+        if (_authorityId < _authorities.length && _authorityId >= 0) {
+            return (
+                _authorities[_authorityId].authority, 
+                _authorities[_authorityId].name,
+                _authorities[_authorityId].level
+            );
         } else {
+            // @notice instead of failing if requested ID is out-of-bounds
+            //  returns address 0, description "out of bounds" and lowest
+            //  possible authority-level.
+            // @dev might be security issue, as address 0 is treated as existing
+            //  authority
             return (0x0000000000000000000000000000000000000000, bytes32('out of bounds'), uint8(255));
         }
     }
@@ -61,7 +73,6 @@ contract CarAccessControl {
     }
 
     /* INTERNAL INTERFACE */
-
     // @notice private function to add new authority
     // @dev never make public as no access control happens
     function addAuthority(
@@ -77,6 +88,9 @@ contract CarAccessControl {
         uint256 newAuthorityId = _authorities.push(_authority) - 1;
         _inAuthorities[_newAuthority] = true;
         _indexInAuthorities[_newAuthority] = newAuthorityId;
+
+        emit AuthorityAdded(newAuthorityId, _newAuthority, _name, _level);
+
         return newAuthorityId;
     }
 
@@ -84,6 +98,8 @@ contract CarAccessControl {
     // @dev never make public as no access control happens
     function deleteAuthority(address _authority) private {
         _inAuthorities[_authority] = false;
+
+        emit AuthorityRemoved(_indexInAuthorities[_authority]);
     }
 
     // @notice private function to set a new owner
@@ -92,6 +108,8 @@ contract CarAccessControl {
         require(_newOwner != address(0));
         deleteAuthority(owner);
         owner = _newOwner;
+
+        emit OwnerChanged(owner);
     }
 
     /* ACCESS MODIFIERS */
