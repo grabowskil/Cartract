@@ -1,53 +1,50 @@
-var carcore = artifacts.require("./carCore.sol");
+var CarCore = artifacts.require("./carCore.sol");
 
 contract('CarCore', function(accounts) {
+    var car;
+    var account0 = accounts[0];
+    var account1 = accounts[1];
+    var account2 = accounts[2];
 
-    account0 = accounts[0];
-    account1 = accounts[1];
-    account2 = accounts[2];
-
-    it("should be owner of car", function() {
-        return carcore.deployed().then(function(instance) {
-            return instance.amOwner.call({from: account0});
-        });
+    beforeEach("setup contract for each test", async function() {
+        car = await CarCore.new(account0);
     });
 
-    it("shouldn't be owner of car", function() {
-        return carcore.deployed().then(function(instance) {
-            return (instance.amOwner.call({from: account1}) == false);
-        });
+    it("should be only owner of car", async function() {
+        assert.equal(
+            await car.amOwner({from: account0})
+            && await car.amOwner({from: account1}) == false,
+            true);
     });
 
-    it("shouldn't start engine", function() {
-        return carcore.deployed().then(function(instance) {
-            return (instance.startEngine.call({from: accounts[0]}) == false);
-        });
+    it("shouldn't start engine", async function() {
+        assert.equal(await car.startEngine({from: account0}), false);
     });
 
-    it("should administer authority", function() {
-        return carcore.deployed().then(function(instance) {
-            core = instance;
-            return core.newAuthority.call(
-                account1, 'TÜV', 1, {from: account0}
-            );
-        }).then(function(amauthority) {
-            return core.amAuthority({from: account1});
-        });
+    it("should administer authority", async function() {
+        await car.newAuthority(account1, "TÜV", 1, {from: account0});
+        assert.equal(await car.amAuthority({from: account1}), true);
     });
 
-    // @dev needs to be rewritten as async
-    /*it("should apply new permit", function() {
-        return carcore.deployed().then(function(instance) {
-            core = instance;
-            return core.newAuthority.call(
-                account1, 'TÜV', 1, {from: account0}
-            );
-        }).then(function(amauthority) {
-            return core.amAuthority({from: account1});
-        }).then(function(newpermit) {
-            return core.newPermit.call(
-                4070908800, 0, {from: account1}
-            );
-        });
-    });*/
+    it("should apply new permits and start engine", async function() {
+        await car.newAuthority(account1, "TÜV", 1, {from: account0});
+        await car.newPermit(4070908800, 0, {from: account1});
+        await car.newAuthority(account2, "Versicherung", 2, {from: account0});
+        await car.newPermit(4070908800, 1, {from: account2});
+        assert.equal(await car.startEngine({from: account0}), true);
+    });
+
+    it("should remove authority", async function() {
+        await car.newAuthority(account1, "Test", 4, {from: account0});
+        wasCreated = await car.amAuthority({from: account1});
+        await car.removeAuthority(await car.getIndexAuthority(account1), {from: account0});
+        wasRemoved = (await car.amAuthority({from: account1}) == false);
+        assert.equal(wasRemoved && wasCreated, true);
+    });
+
+    it("should transfer owner", async function() {
+        wasNotOwner = (await car.amOwner({from: account1}) == false);
+        await car.transferOwner(account1, {from: account0});
+        assert.equal(await car.amOwner({from: account1}) && wasNotOwner, true)
+    })
 });
