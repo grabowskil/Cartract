@@ -47,7 +47,7 @@ contract CarAccessControl {
     {
         if (_authorityId < _authorities.length && _authorityId >= 0) {
             return (
-                _authorities[_authorityId].authority, 
+                _authorities[_authorityId].authority,
                 _authorities[_authorityId].name,
                 _authorities[_authorityId].level
             );
@@ -79,7 +79,12 @@ contract CarAccessControl {
         address _newAuthority,
         bytes32 _name,
         uint8 _level
-    ) private returns(uint256) {
+    )
+        private
+        returns(uint256)
+    {
+        require(_inAuthorities[_newAuthority] == false);
+
         Authority memory _authority = Authority({
             authority: _newAuthority,
             name: _name,
@@ -97,9 +102,11 @@ contract CarAccessControl {
     // @notice private function to delete authority
     // @dev never make public as no access control happens
     function deleteAuthority(address _authority) private {
+        delete _authorities[_indexInAuthorities[_authority]];
         _inAuthorities[_authority] = false;
 
         emit AuthorityRemoved(_indexInAuthorities[_authority]);
+        _indexInAuthorities[_authority] = 0;
     }
 
     // @notice private function to set a new owner
@@ -108,6 +115,7 @@ contract CarAccessControl {
         require(_newOwner != address(0));
         deleteAuthority(owner);
         owner = _newOwner;
+        addAuthority(_newOwner, 'owner', uint8(3));
 
         emit OwnerChanged(owner);
     }
@@ -152,7 +160,9 @@ contract CarAccessControl {
         bytes32 _name,
         uint8 _level
     )
-        public onlyAuthorities returns(uint256)
+        public
+        onlyAuthorities
+        returns(uint256)
     {
         return addAuthority(_newAuthority, _name, _level);
     }
@@ -183,12 +193,12 @@ contract CarAccessControl {
 
     /* HELPER FUNCTIONS */
     // @dev check my own ownership status
-    function amOwner() constant public returns(bool) {
+    function amOwner() public view returns(bool) {
         return (msg.sender == owner);
     }
 
     // @dev check my own authority status
-    function amAuthority() constant public returns(bool) {
+    function amAuthority() public view returns(bool) {
         return _inAuthorities[msg.sender];
     }
 
@@ -201,6 +211,6 @@ contract CarAccessControl {
     /* CONSTRUCTION */
     constructor() public {
         owner = msg.sender; // initial sender becomes owner
-        addAuthority(owner, "owner", uint8(3)); // owner gets level 3 authority
+        addAuthority(owner, 'owner', uint8(3)); // owner gets level 3 authority
     }
 }

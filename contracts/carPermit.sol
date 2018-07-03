@@ -125,11 +125,16 @@ contract CarPermit is CarAccessControl {
     }
 
     // @notice interface to check if a valid permit for parsed type exists
-    // @dev tries to get the standard permit from "_restrictions" first before
-    //  iterating through "_permits". If the standard permit is invalid but
-    //  another valid permit can be found, the standard permit is updated.
-    function isPermitted(uint8 _requiredPermitType) internal returns(bool) {
-        (uint256 a, uint64 b, uint64 c, uint8 d) = getPermit(_restrictions[_requiredPermitType]);
+    // @dev gets the standard permit from "_restrictions"
+    function isPermitted(
+        uint8 _requiredPermitType
+    )
+        internal
+        view
+        returns(bool)
+    {
+        (uint256 a, uint64 b, uint64 c, uint8 d) =
+            getPermit(_restrictions[_requiredPermitType]);
         if (isValidPermit(a, b, c, d, _requiredPermitType)) {
             return true;
         } else {
