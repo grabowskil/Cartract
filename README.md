@@ -2,7 +2,7 @@
 
 This SmartContract was written as one part of my master thesis and represents a car, which needs valid inspection and insurance to start.
 
-[![test](https://img.shields.io/badge/tests-passing%206%2C%200%20failed%2C%200%20skipped-brightgreen.svg)]
+![test-badge](https://img.shields.io/badge/tests-passing%206%2C%200%20failed%2C%200%20skipped-brightgreen.svg)
 
 ## Getting Started
 
