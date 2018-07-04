@@ -45,7 +45,7 @@ As this is just an academic starting point, there is currently no migration to a
 
 ## Authors
 
-**Lennart Grabowski** - *Initial work* - @grabowskil
+**Lennart Grabowski** - *Initial work* - [grabowskil](https://github.com/grabowskil)
 
 ## License
 
