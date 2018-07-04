@@ -1,17 +1,19 @@
 # Cartract - An expandable SmartContract to check if you can start your car
 
-This SmartContract was written for my master thesis and represents a car, which needs valid inspection and insurance to be started.
+This SmartContract was written as one part of my master thesis and represents a car, which needs valid inspection and insurance to start.
+
+[![test](https://img.shields.io/badge/tests-passing%206%2C%200%20failed%2C%200%20skipped-brightgreen.svg)]
 
 ## Getting Started
 
 ### Prerequisites & Installing
 
-To run and compile this contract yourself, you need to globally install the [truffle-framework!](https://github.com/trufflesuite/truffle):
+To run and compile this contract yourself, you need to globally install the [truffle-framework](https://github.com/trufflesuite/truffle):
 ```
 $ npm install -g truffle
 ```
 
-You will need to install a local ethereum RPC like testrpc, truffle develop or ganache. This contract was written against [ganache-cli!](https://github.com/trufflesuite/ganache-cli):
+You will need to install a local ethereum RPC like testrpc, truffle develop or ganache. This contract was written against [ganache-cli](https://github.com/trufflesuite/ganache-cli):
 ```
 $ npm install -g ganache-cli
 ```
@@ -33,23 +35,13 @@ Run tests with truffle's integrated testsuite:
 $ truffle test
 ```
 
-Status, July 4, 2018:
-test | result
----- | ------
-should be only owner of car | [![test](https://img.shields.io/badge/test-passed-brightgreen.svg)]
-shouldn't start engine | [![test](https://img.shields.io/badge/test-passed-brightgreen.svg)]
-should administer authority | [![test](https://img.shields.io/badge/test-passed-brightgreen.svg)]
-should apply new permits and start engine | [![test](https://img.shields.io/badge/test-passed-brightgreen.svg)]
-should remove authority | [![test](https://img.shields.io/badge/test-passed-brightgreen.svg)]
-should transfer owner | [![test](https://img.shields.io/badge/test-passed-brightgreen.svg)]
-
 ## Deployment
 
 As this is just an academic starting point, there is currently no migration to a live network configured.
 
 ## Built With
 
-* [truffle-framework!](https://github.com/trufflesuite/truffle)
+* [truffle-framework](https://github.com/trufflesuite/truffle)
 
 ## Authors
 
