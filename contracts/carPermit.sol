@@ -44,11 +44,6 @@ contract CarPermit is CarAccessControl {
             uint64 _validTill = _permits[_permitId].validTill;
             uint8 _permitType = _permits[_permitId].permitType;
             return (_issuingAuthorityId, _validFrom, _validTill, _permitType);
-        } else {
-            // @notice instead of failing if requested ID is out-of-bounds
-            //  returns authority-id -1 (unsigned), validity period epoch and
-            //  highest possible type
-            return (uint256(-1), uint64(0), uint64(0), uint8(255));
         }
     }
 
