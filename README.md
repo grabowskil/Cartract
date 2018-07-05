@@ -18,7 +18,10 @@ You will need to install a local ethereum RPC like testrpc, truffle develop or g
 $ npm install -g ganache-cli
 ```
 
-Just clone this git and use truffle and ganache to compile and test.
+Just clone this git and install openzepplin via npm:
+```
+$ npm install
+```
 
 To run a migration ootb you will need to start ganache-cli with the following mnemonic:
 ```
@@ -27,6 +30,7 @@ misery ice toe feature hint family double royal quote buyer park gift
 
 If you are using another RPC, you will need to adjust `truffle.js` accordingly.
 
+Use truffle and ganache to compile and test.
 
 ## Running the tests
 
@@ -42,6 +46,7 @@ As this is just an academic starting point, there is currently no migration to a
 ## Built With
 
 * [truffle-framework](https://github.com/trufflesuite/truffle)
+* [openzepplin-solidity](https://github.com/OpenZeppelin/openzeppelin-solidity)
 
 ## Authors
 
