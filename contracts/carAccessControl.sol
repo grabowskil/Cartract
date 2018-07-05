@@ -3,15 +3,12 @@ pragma solidity ^0.4.22;
 /// @title facet of CarCore to control access to a car's functions
 /// @author Lennart Grabowski
 
+import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 
-contract CarAccessControl {
+contract CarAccessControl is Ownable {
 
-    event OwnerChanged(address owner);
     event AuthorityAdded(uint256 authorityId, address authority, bytes32 name, uint8 level);
     event AuthorityRemoved(uint256 authorityId);
-
-    // @notice the car's owner
-    address owner;
 
     // @notice returns the owner's address
     function getOwner() constant public returns(address) {
@@ -109,23 +106,7 @@ contract CarAccessControl {
         _indexInAuthorities[_authority] = 0;
     }
 
-    // @notice private function to set a new owner
-    // @dev never make public as no access control happens
-    function setOwner(address _newOwner) private {
-        require(_newOwner != address(0));
-        deleteAuthority(owner);
-        owner = _newOwner;
-        addAuthority(_newOwner, 'owner', uint8(3));
-
-        emit OwnerChanged(owner);
-    }
-
     /* ACCESS MODIFIERS */
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
-    }
-
     modifier onlyAuthorities() {
         require(_inAuthorities[msg.sender]);
         _;
@@ -151,7 +132,8 @@ contract CarAccessControl {
         public
         onlyAuthoritiesLevel(uint8(3))
     {
-        setOwner(_newOwner);
+        _transferOwnership(_newOwner);
+        addAuthority(_newOwner, 'owner', uint8(3));
     }
 
     // @notice interface to add new authority
@@ -210,7 +192,6 @@ contract CarAccessControl {
 
     /* CONSTRUCTION */
     constructor() public {
-        owner = msg.sender; // initial sender becomes owner
         addAuthority(owner, 'owner', uint8(3)); // owner gets level 3 authority
     }
 }

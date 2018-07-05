@@ -45,7 +45,7 @@ As this is just an academic starting point, there is currently no migration to a
 
 ## Authors
 
-**Lennart Grabowski** - *Initial work* - [HunterXxX360](https://github.com/HunterXxX360)
+**Lennart Grabowski** - *Initial work* - [grabowskil](https://github.com/grabowskil)
 
 ## License
 

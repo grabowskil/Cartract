@@ -1,0 +1,10 @@
+# fragments
+.DS_Store
+*.tar.gz
+
+# folders
+/build
+/node_modules
+
+# node
+package-lock.json
