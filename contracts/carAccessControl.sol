@@ -10,11 +10,6 @@ contract CarAccessControl is Ownable {
     event AuthorityAdded(uint256 authorityId, address authority, bytes32 name, uint8 level);
     event AuthorityRemoved(uint256 authorityId);
 
-    // @notice returns the owner's address
-    function getOwner() constant public returns(address) {
-        return owner;
-    }
-
     // @dev the main authority struct. Every authority needs to be identified by
     //  address and some identifying name and type. Additonally an
     //  authority-level must be given to the authority's relevance. Levels are
@@ -48,13 +43,6 @@ contract CarAccessControl is Ownable {
                 _authorities[_authorityId].name,
                 _authorities[_authorityId].level
             );
-        } else {
-            // @notice instead of failing if requested ID is out-of-bounds
-            //  returns address 0, description "out of bounds" and lowest
-            //  possible authority-level.
-            // @dev might be security issue, as address 0 is treated as existing
-            //  authority
-            return (0x0000000000000000000000000000000000000000, bytes32('out of bounds'), uint8(255));
         }
     }
 
